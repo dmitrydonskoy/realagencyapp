@@ -396,3 +396,78 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Общие исключения для всех проектов на C#
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.sln.ide
+
+# Конфигурационные файлы, специфичные для окружения
+appsettings.*.json
+appsettings.local.json
+appsettings.Development.json
+launchSettings.json
+
+# Файлы сборки и кэша
+*.dll
+*.pdb
+*.exe
+*.log
+*.cache
+*.config
+*.csproj.user
+*.csproj.nuget.dgspec.json
+*.csproj.nuget.g.props
+*.csproj.nuget.g.targets
+
+# Папка с временными данными ASP.NET
+wwwroot/
+node_modules/
+dist/
+.vscode/
+
+# Файлы для инструментов и IDE
+.idea/
+.vscode/
+.vs/
+*.sqlite
+*.sqlite3
+
+# Логи и временные файлы
+*.log
+*.nupkg
+*.snupkg
+*.tmp
+*.bak
+*.swp
+
+# Файлы пакетов NuGet
+*.nuget/
+packages/
+*.nupkg
+project.lock.json
+project.fragment.lock.json
+
+# Файлы для CI/CD
+!/.github/
+!.gitlab-ci.yml
+!.azure-pipelines.yml
+
+# Docker и контейнеры
+docker-compose.override.yml
+docker-compose*.yaml
+*.dockerignore
+
+# Инструменты тестирования
+TestResults/
+*.coverage
+*.coveragexml
+*.trx
+
+# Исключения, специфичные для Windows
+Thumbs.db
+Desktop.ini
