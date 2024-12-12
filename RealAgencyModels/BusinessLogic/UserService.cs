@@ -17,24 +17,6 @@ namespace RealAgencyModels.BusinessLogic
 			_dbContext = dbContext;
 		}
 
-		// Создание нового пользователя
-		public async Task<UserDTO> CreateAsync(UserDTO dto)
-		{
-			var model = new User
-			{
-				Name = dto.Name,
-				Role = dto.Role,
-				Email = dto.Email,
-				Password = dto.Password,
-				DateOfBirth = dto.DateOfBirth
-			};
-
-			_dbContext.Users.Add(model);
-			await _dbContext.SaveChangesAsync();
-
-			dto.Id = model.Id; // Возвращаем ID в DTO
-			return dto;
-		}
 
 		// Получение пользователя по ID
 		public async Task<UserDTO?> GetByIdAsync(int id)
@@ -49,7 +31,7 @@ namespace RealAgencyModels.BusinessLogic
 				Role = model.Role,
 				Email = model.Email,
 				Password = model.Password,
-				DateOfBirth = model.DateOfBirth
+				
 			};
 		}
 
@@ -63,8 +45,8 @@ namespace RealAgencyModels.BusinessLogic
 					Name = model.Name,
 					Role = model.Role,
 					Email = model.Email,
-					Password = model.Password,
-					DateOfBirth = model.DateOfBirth
+					Password = model.Password
+					
 				})
 				.ToListAsync();
 		}
@@ -79,7 +61,7 @@ namespace RealAgencyModels.BusinessLogic
 			model.Role = dto.Role;
 			model.Email = dto.Email;
 			model.Password = dto.Password;
-			model.DateOfBirth = dto.DateOfBirth;
+		
 
 			await _dbContext.SaveChangesAsync();
 			return dto;
@@ -94,6 +76,33 @@ namespace RealAgencyModels.BusinessLogic
 			_dbContext.Users.Remove(model);
 			await _dbContext.SaveChangesAsync();
 			return true;
+		}
+		public async Task<User?> GetByEmailAsync(string email)
+		{
+			return await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
+		}
+
+		public async Task<User> CreateAsync(UserDTO dto)
+		{
+			var passwordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password); // Хеширование пароля
+
+			var user = new User
+			{
+				Name = dto.Name,
+				Email = dto.Email,
+				Role = "User", // Назначьте роль по умолчанию
+				Password = passwordHash,
+				DateOfBirth = new DateOnly(2001, 10, 11)
+			};
+
+			_dbContext.Users.Add(user);
+			await _dbContext.SaveChangesAsync();
+			return user;
+		}
+
+		public bool VerifyPassword(User user, string password)
+		{
+			return BCrypt.Net.BCrypt.Verify(password, user.Password);
 		}
 	}
 }
