@@ -1,0 +1,39 @@
+﻿@model RealAgencyClientApp.Models.UserRegisterModel
+
+@{
+    ViewData["Title"] = "Регистрация";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h4>Регистрация</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-controller="Auth" asp-action="RegisterView" method="post">
+                        <div class="mb-3">
+                            <label for="Name" class="form-label">Имя</label>
+                            <input type="text" class="form-control" id="Name" name="Name" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="Email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="Email" name="Email" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="Password" class="form-label">Пароль</label>
+                            <input type="password" class="form-control" id="Password" name="Password" required />
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success">Зарегистрироваться</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    <p>Уже есть аккаунт? <a asp-controller="Auth" asp-action="LoginView">Авторизация</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
