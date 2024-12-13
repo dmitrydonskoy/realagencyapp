@@ -8,6 +8,7 @@ namespace RealAgencyModels
         public Announcement()
         {
             Realestates = new HashSet<Realestate>();
+            Users = new HashSet<User>();
             Сooperations = new HashSet<Сooperation>();
         }
 
@@ -19,6 +20,7 @@ namespace RealAgencyModels
         public virtual User User { get; set; } = null!;
         public virtual ICollection<Realestate> Realestates { get; set; }
 
+        public virtual ICollection<User> Users { get; set; }
         public virtual ICollection<Сooperation> Сooperations { get; set; }
     }
 }

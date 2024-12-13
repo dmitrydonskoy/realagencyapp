@@ -2,27 +2,25 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.Extensions.Configuration;
 
 namespace RealAgencyModels
 {
     public partial class RealAgencyDBContext : DbContext
     {
-		private readonly IConfiguration _configuration;
-		public RealAgencyDBContext()
+        public RealAgencyDBContext()
         {
         }
 
-        public RealAgencyDBContext(DbContextOptions<RealAgencyDBContext> options, IConfiguration configuration)
+        public RealAgencyDBContext(DbContextOptions<RealAgencyDBContext> options)
             : base(options)
         {
-			_configuration = configuration;
-		}
+        }
 
         public virtual DbSet<Announcement> Announcements { get; set; } = null!;
         public virtual DbSet<AreaInfo> AreaInfos { get; set; } = null!;
         public virtual DbSet<Bid> Bids { get; set; } = null!;
         public virtual DbSet<Profile> Profiles { get; set; } = null!;
+        public virtual DbSet<RealEstatePhoto> RealEstatePhotos { get; set; } = null!;
         public virtual DbSet<Realestate> Realestates { get; set; } = null!;
         public virtual DbSet<User> Users { get; set; } = null!;
         public virtual DbSet<Сooperation> Сooperations { get; set; } = null!;
@@ -31,9 +29,8 @@ namespace RealAgencyModels
         {
             if (!optionsBuilder.IsConfigured)
             {
-				var connectionString = _configuration.GetConnectionString("DefaultConnection");
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-				optionsBuilder.UseNpgsql(connectionString);
+                optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=RealAgencyDB;Username=postgres;password=urogil01;");
             }
         }
 
@@ -60,6 +57,23 @@ namespace RealAgencyModels
                     .HasForeignKey(d => d.Userid)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("announcement_userid_fkey");
+
+                entity.HasMany(d => d.Users)
+                    .WithMany(p => p.AnnouncementsNavigation)
+                    .UsingEntity<Dictionary<string, object>>(
+                        "Favorite",
+                        l => l.HasOne<User>().WithMany().HasForeignKey("Userid").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("fkannounceme524006"),
+                        r => r.HasOne<Announcement>().WithMany().HasForeignKey("Announcementid").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("fkannounceme271332"),
+                        j =>
+                        {
+                            j.HasKey("Announcementid", "Userid").HasName("announcement_user_pkey");
+
+                            j.ToTable("Favorites");
+
+                            j.IndexerProperty<int>("Announcementid").HasColumnName("announcementid");
+
+                            j.IndexerProperty<int>("Userid").HasColumnName("userid");
+                        });
             });
 
             modelBuilder.Entity<AreaInfo>(entity =>
@@ -152,6 +166,27 @@ namespace RealAgencyModels
                     .HasForeignKey(d => d.Userid)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("profile_userid_fkey");
+            });
+
+            modelBuilder.Entity<RealEstatePhoto>(entity =>
+            {
+                entity.ToTable("RealEstatePhoto");
+
+                entity.Property(e => e.Id)
+                    .HasColumnName("id")
+                    .HasDefaultValueSql("nextval('entity_id_seq'::regclass)");
+
+                entity.Property(e => e.Filepath)
+                    .HasMaxLength(255)
+                    .HasColumnName("filepath");
+
+                entity.Property(e => e.Realestateid).HasColumnName("realestateid");
+
+                entity.HasOne(d => d.Realestate)
+                    .WithMany(p => p.RealEstatePhotos)
+                    .HasForeignKey(d => d.Realestateid)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("fkentity797069");
             });
 
             modelBuilder.Entity<Realestate>(entity =>

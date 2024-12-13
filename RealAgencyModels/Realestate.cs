@@ -8,6 +8,7 @@ namespace RealAgencyModels
         public Realestate()
         {
             AreaInfos = new HashSet<AreaInfo>();
+            RealEstatePhotos = new HashSet<RealEstatePhoto>();
         }
 
         public int Id { get; set; }
@@ -26,5 +27,6 @@ namespace RealAgencyModels
 
         public virtual Announcement Announcement { get; set; } = null!;
         public virtual ICollection<AreaInfo> AreaInfos { get; set; }
+        public virtual ICollection<RealEstatePhoto> RealEstatePhotos { get; set; }
     }
 }
