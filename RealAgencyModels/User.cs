@@ -10,6 +10,7 @@ namespace RealAgencyModels
             Announcements = new HashSet<Announcement>();
             Bids = new HashSet<Bid>();
             Profiles = new HashSet<Profile>();
+            AnnouncementsNavigation = new HashSet<Announcement>();
         }
 
         public int Id { get; set; }
@@ -22,5 +23,7 @@ namespace RealAgencyModels
         public virtual ICollection<Announcement> Announcements { get; set; }
         public virtual ICollection<Bid> Bids { get; set; }
         public virtual ICollection<Profile> Profiles { get; set; }
+
+        public virtual ICollection<Announcement> AnnouncementsNavigation { get; set; }
     }
 }
