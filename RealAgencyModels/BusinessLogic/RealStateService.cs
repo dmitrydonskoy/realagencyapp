@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using RealAgencyModels.DTO;
 using System;
 using System.Collections.Generic;
@@ -124,5 +125,20 @@ namespace RealAgencyModels.BusinessLogic
 			await _dbContext.SaveChangesAsync();
 			return true;
 		}
-	}
+        public async Task<List<AnnouncementDescription>> GetAllRealEstatesAsync()
+        {
+            return await _dbContext.Realestates
+                .Include(re => re.RealEstatePhotos) // Подгружаем связанные фотографии
+                .Select(re => new AnnouncementDescription
+                {
+                    Id = re.Id,
+                    Description = re.Description,
+                    Price = re.Price,
+                    Type = re.Type,
+					
+                    Photos = re.RealEstatePhotos.Select(photo => photo.Filepath).ToList()
+                })
+                .ToListAsync();
+        }
+    }
 }

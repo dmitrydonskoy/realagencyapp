@@ -88,6 +88,51 @@ namespace RealAgencyModels.BusinessLogic
 			await _dbContext.SaveChangesAsync();
 			return true;
 		}
-	}
+
+        public async Task<RealEstateDetailsDTO?> GetRealEstatePageDataAsync(int announcementId)
+        {
+            // Ищем объявление по его ID
+            var announcement = await _dbContext.Announcements
+                .FirstOrDefaultAsync(a => a.Id == announcementId);
+
+            if (announcement == null)
+                return null;
+
+            // Ищем недвижимость по Announcementid
+            var realEstate = await _dbContext.Realestates
+                .Include(re => re.RealEstatePhotos)
+                .FirstOrDefaultAsync(re => re.Announcementid == announcementId);
+
+            if (realEstate == null)
+                return null;
+
+            // Ищем информацию об области по RealEstateId
+            var areaInfo = await _dbContext.AreaInfos
+                .FirstOrDefaultAsync(ai => ai.Realestateid == realEstate.Id);
+
+            if (areaInfo == null)
+                return null;
+
+            return new RealEstateDetailsDTO
+            {
+                RealEstateId = realEstate.Id,
+                Address = realEstate.Address,
+                Rooms = realEstate.Rooms,
+                Type = realEstate.Type,
+                Square = realEstate.Square,
+                Floor = realEstate.Floor,
+                Bathroom = realEstate.Bathroom,
+                Repair = realEstate.Repair,
+                Furniture = realEstate.Furniture,
+                TransactionType = realEstate.TransactionType,
+                Price = realEstate.Price,
+                Photos = realEstate.RealEstatePhotos.Select(p => p.Filepath).ToList(),
+                AnnouncementTitle = announcement.Type,
+                AnnouncementDescription = announcement.Description,
+                AreaDescription = areaInfo.Description
+            };
+        }
+
+    }
 }
 

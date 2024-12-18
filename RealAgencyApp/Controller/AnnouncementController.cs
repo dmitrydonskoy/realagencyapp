@@ -9,14 +9,16 @@ namespace RealAgencyApp.Controller
 	public class AnnouncementController : ControllerBase
 	{
 		private readonly AnnouncementService _announcementService;
+        private readonly RealStateService _realestateService;
+        public AnnouncementController(AnnouncementService announcementService, RealStateService realestateService)
+        {
+            _announcementService = announcementService;
+            _realestateService = realestateService;
+        }
 
-		public AnnouncementController(AnnouncementService announcementService)
-		{
-			_announcementService = announcementService;
-		}
 
-		// Создание нового объявления
-		[HttpPost]
+        // Создание нового объявления
+        [HttpPost]
 		public async Task<IActionResult> Create([FromBody] AnnouncementDTO dto)
 		{
 			if (!ModelState.IsValid)
@@ -69,5 +71,23 @@ namespace RealAgencyApp.Controller
 
 			return NoContent();
 		}
-	}
+        [HttpGet]
+        [Route("get-all")]
+        public async Task<IActionResult> GetAllAnnouncement()
+        {
+            var realEstates = await _realestateService.GetAllRealEstatesAsync();
+            return Ok(realEstates);
+        }
+
+        [HttpGet("page/{announcementId}")]
+        public async Task<IActionResult> GetRealEstatePageData(int announcementId)
+        {
+            var data = await _announcementService.GetRealEstatePageDataAsync(announcementId);
+
+            if (data == null)
+                return NotFound(new { message = "Data not found" });
+
+            return Ok(data);
+        }
+    }
 }

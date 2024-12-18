@@ -1,50 +1,32 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using RealAgencyClientApp.Models;
-using System.Diagnostics;
 using System.Net.Http;
 
 namespace RealAgencyClientApp.Controllers
 {
-	public class HomeController : Controller
-	{
-		private readonly ILogger<HomeController> _logger;
+    public class AnnouncementController : Controller
+    {
         private readonly HttpClient _httpClient;
-
-        public HomeController(ILogger<HomeController> logger, IHttpClientFactory httpClientFactory)
-		{
+        public AnnouncementController(IHttpClientFactory httpClientFactory)
+        {
             _httpClient = httpClientFactory.CreateClient();
-            _httpClient.BaseAddress = new Uri("https://localhost:7023/api");
-            _logger = logger;
-		}
-
+            _httpClient.BaseAddress = new Uri("https://localhost:7023/api"); // Базовый URL внешнего API
+        }
+       
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var response = await _httpClient.GetAsync("/api/Announcement/get-all");
-
-            if (!response.IsSuccessStatusCode)
+            try
             {
-                TempData["ErrorMessage"] = "Failed to load real estate listings.";
-                return View(new List<AnnouncementListModel>());
+                var realEstates = await _httpClient.GetFromJsonAsync<List<AnnouncementListModel>>("realestate/list");
+                return View(realEstates); // Передаём модель в представление
             }
-
-            var content = await response.Content.ReadAsStringAsync();
-            var realEstates = JsonConvert.DeserializeObject<List<AnnouncementListModel>>(content);
-
-            return View(realEstates);
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Failed to load real estate listings: {ex.Message}";
+                return View(new List<AnnouncementListModel>()); // Передаём пустую модель в случае ошибки
+            }
         }
-        public IActionResult Privacy()
-		{
-			return View();
-		}
-
-		[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-		public IActionResult Error()
-		{
-			return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-		}
-		
-       
 
         // Метод для загрузки фотографии к объявлению
         [HttpPost]
@@ -86,7 +68,12 @@ namespace RealAgencyClientApp.Controllers
 
             return RedirectToAction("Index");
         }
-        // Получение подробной информации по объявлению
+        [HttpPost]
+        public async Task<RealEstateDetailsDTO?> GetRealEstatePageDataAsync(int realEstateId)
+        {
+            var response = await _httpClient.GetFromJsonAsync<RealEstateDetailsDTO>($"api/announcement/page/{realEstateId}");
+            return response;
+        }
         public async Task<IActionResult> Announcement(int id)
         {
             var details = await _httpClient.GetFromJsonAsync<RealEstateDetailsDTO>($"api/Announcement/page/{id}");
@@ -94,3 +81,4 @@ namespace RealAgencyClientApp.Controllers
         }
     }
 }
+
