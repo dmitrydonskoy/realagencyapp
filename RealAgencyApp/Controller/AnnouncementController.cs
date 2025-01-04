@@ -19,13 +19,13 @@ namespace RealAgencyApp.Controller
 
         // Создание нового объявления
         [HttpPost]
-		public async Task<IActionResult> Create([FromBody] AnnouncementDTO dto)
+		public async Task<IActionResult> Create([FromBody] CreateAnnouncementDTO dto, string userId)
 		{
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 
-			var result = await _announcementService.CreateAsync(dto);
-			return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+			var result = await _announcementService.CreateAsync(dto, userId);
+			return CreatedAtAction(nameof(GetById), new { id = result.Id}, result);
 		}
 
 		// Получение объявления по Id

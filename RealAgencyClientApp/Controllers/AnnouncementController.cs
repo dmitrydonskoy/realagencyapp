@@ -1,6 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RealAgencyClientApp.Models;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Reflection;
+using System.Security.Claims;
 
 namespace RealAgencyClientApp.Controllers
 {
@@ -79,6 +83,45 @@ namespace RealAgencyClientApp.Controllers
             var details = await _httpClient.GetFromJsonAsync<RealEstateDetailsDTO>($"api/Announcement/page/{id}");
             return View(details);
         }
+
+        [HttpGet]
+        public IActionResult Create()
+        {
+          
+
+            return View(new CreateAnnouncementDTO());
+        }
+        [HttpPost]
+        public async Task<IActionResult> CreateAnnouncement(CreateAnnouncementDTO model)
+        {
+            try
+            {
+                // Устанавливаем AreaInfo в null, если тип недвижимости — "Квартира"
+                if (model.RealEstate.Type == "Квартира")
+                {
+                    model.AreaInfo = null;
+                }
+
+                // Отправляем запрос на сервер
+                var response = await _httpClient.PostAsJsonAsync("announcement/create", model);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    ModelState.AddModelError("", "Failed to create announcement.");
+                    return View(model);
+                }
+
+                // Успешное создание
+                TempData["SuccessMessage"] = "Announcement created successfully!";
+                return RedirectToAction("Index", "Announcements");
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"An error occurred: {ex.Message}");
+                return View(model);
+            }
+        }
     }
-}
+    }
+
 
