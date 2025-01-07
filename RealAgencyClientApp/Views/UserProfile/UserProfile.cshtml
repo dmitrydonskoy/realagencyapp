@@ -1,11 +1,26 @@
-﻿@model UserModel
+﻿@model AgentProfileViewModel
 
 <h1>User Profile</h1>
 
 <div>
     <h2>Basic Information</h2>
-    <p><strong>ID:</strong> @Model.Id</p>
-    <p><strong>Name:</strong> @Model.Name</p>
-    <p><strong>Email:</strong> @Model.Email</p>
+    <p><strong>ID:</strong> @Model.User.Id</p>
+    <p><strong>Name:</strong> @Model.User.Name</p>
+    <p><strong>Email:</strong> @Model.User.Email</p>
 </div>
-
+@if (Model.User.Role == "Agent")
+{
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Информация агента</h5>
+            <p><strong>Опыт:</strong> @Model.agentProfile.Experience</p>
+            <p><strong>Количество сделок:</strong> @Model.agentProfile.Transactions</p>
+            <p><strong>Процент:</strong> @Model.agentProfile.Percent</p>
+            <p><strong>Описание:</strong> @Model.agentProfile.Description</p>
+        </div>
+    </div>
+}
+<div class="mt-4">
+    <a asp-action="EditUserProfile" class="btn btn-primary">Редактировать профиль</a>
+    <a asp-action="Index" class="btn btn-secondary">На главную</a>
+</div>

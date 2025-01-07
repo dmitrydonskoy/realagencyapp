@@ -1,0 +1,81 @@
+﻿@model AgentProfileViewModel
+
+<div class="container mt-4">
+    <h1>Редактирование профиля</h1>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <form asp-action="EditUserProfile" method="post">
+        <h3>Основная информация</h3>
+        <div class="mb-3">
+            <label for="Id" class="form-label">Id</label>
+            <input asp-for="User.Id" class="form-control" readonly />
+        </div>
+        <div class="mb-3">
+            <label for="Name" class="form-label">Имя</label>
+            <input asp-for="User.Name" class="form-control" />
+            <span asp-validation-for="User.Name" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label for="Email" class="form-label">Email</label>
+            <input asp-for="User.Email" type="email" class="form-control" />
+            <span asp-validation-for="User.Email" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label for="Role" class="form-label">Роль</label>
+            <input asp-for="User.Role" class="form-control" readonly />
+        </div>
+
+        @if (Model.agentProfile != null)
+        {
+            <h3 class="mt-4">Информация агента</h3>
+            <input asp-for="agentProfile.Id" type="hidden" />
+            <div class="mb-3">
+                <label for="Experience" class="form-label">Опыт</label>
+                <input asp-for="agentProfile.Experience" class="form-control" />
+                <span asp-validation-for="agentProfile.Experience" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label for="Transactions" class="form-label">Количество сделок</label>
+                <input asp-for="agentProfile.Transactions" class="form-control" />
+                <span asp-validation-for="agentProfile.Transactions" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label for="Percent" class="form-label">Процент</label>
+                <input asp-for="agentProfile.Percent" class="form-control" />
+                <span asp-validation-for="agentProfile.Percent" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label for="Description" class="form-label">Описание</label>
+                <textarea asp-for="agentProfile.Description" class="form-control"></textarea>
+                <span asp-validation-for="agentProfile.Description" class="text-danger"></span>
+            </div>
+        }
+  
+        <div class="mb-3">
+            <label for="Password" class="form-label">Новый пароль</label>
+            <input asp-for="User.Password" class="form-control" value="" />
+            <span asp-validation-for="User.Password" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+        <a asp-action="UserProfile" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
