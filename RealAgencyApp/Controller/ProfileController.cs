@@ -5,16 +5,18 @@ using RealAgencyModels.DTO;
 
 namespace RealAgencyApp.Controller
 {
-    [Authorize]
+    
     [ApiController]
     [Route("api/[controller]")]
 	public class ProfileController : ControllerBase
 	{
 		private readonly ProfileService _profileService;
+        private readonly UserService _userService;
 
-		public ProfileController(ProfileService profileService)
+        public ProfileController(ProfileService profileService, UserService userService)
 		{
 			_profileService = profileService;
+			_userService = userService;
 		}
 
 		[HttpGet("{id}")]
@@ -24,8 +26,16 @@ namespace RealAgencyApp.Controller
 			if (profile == null) return NotFound();
 			return Ok(profile);
 		}
+        [HttpGet("agentProfile/{userId}")]
+        public async Task<ActionResult<ProfileDTO>> GetAgentProfile(int userId)
+        {
+		
+            var profile = await _profileService.GetAgentProfileAsync(userId);
+            if (profile == null) return NotFound();
+            return Ok(profile);
+        }
 
-		[HttpGet]
+        [HttpGet]
 		public async Task<ActionResult<IEnumerable<ProfileDTO>>> GetAll()
 		{
 			var profiles = await _profileService.GetAllAsync();

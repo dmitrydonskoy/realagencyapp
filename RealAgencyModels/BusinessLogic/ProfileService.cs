@@ -75,7 +75,7 @@ namespace RealAgencyModels.BusinessLogic
 			var model = await _dbContext.Profiles.FindAsync(id);
 			if (model == null) return null;
 
-			model.Userid = dto.Userid;
+	
 			model.Experience = dto.Experience;
 			model.Transactions = dto.Transactions;
 			model.Percent = dto.Percent;
@@ -95,5 +95,23 @@ namespace RealAgencyModels.BusinessLogic
 			await _dbContext.SaveChangesAsync();
 			return true;
 		}
-	}
+
+        public async Task<ProfileDTO?> GetAgentProfileAsync(int userId)
+        {
+            var user = await _dbContext.Users.FindAsync(userId);
+			if (user == null) return null;
+            var model = await _dbContext.Profiles.FirstOrDefaultAsync(p => p.Userid == user.Id);
+            if (model == null) return null;
+
+            return new ProfileDTO
+            {
+                Id = model.Id,
+                Userid = model.Userid,
+                Experience = model.Experience,
+                Transactions = model.Transactions,
+                Percent = model.Percent,
+                Description = model.Description
+            };
+        }
+    }
 }

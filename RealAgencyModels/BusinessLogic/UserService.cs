@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic.ApplicationServices;
 using RealAgencyModels.DTO;
 using System;
 using System.Collections.Generic;
@@ -54,14 +55,19 @@ namespace RealAgencyModels.BusinessLogic
 		// Обновление пользователя
 		public async Task<UserDTO?> UpdateAsync(int id, UserDTO dto)
 		{
-			var model = await _dbContext.Users.FindAsync(id);
+           
+            var model = await _dbContext.Users.FindAsync(id);
 			if (model == null) return null;
+            if (!string.IsNullOrEmpty(dto.Password))
+            {
+                var passwordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+                model.Password = passwordHash;
 
-			model.Name = dto.Name;
+            }
+            model.Name = dto.Name;
 			model.Role = dto.Role;
 			model.Email = dto.Email;
-			model.Password = dto.Password;
-		
+			
 
 			await _dbContext.SaveChangesAsync();
 			return dto;
