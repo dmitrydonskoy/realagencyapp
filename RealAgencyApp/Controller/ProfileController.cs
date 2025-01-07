@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RealAgencyModels.BusinessLogic;
 using RealAgencyModels.DTO;
 
 namespace RealAgencyApp.Controller
 {
-	[ApiController]
-	[Route("api/[controller]")]
+    [Authorize]
+    [ApiController]
+    [Route("api/[controller]")]
 	public class ProfileController : ControllerBase
 	{
 		private readonly ProfileService _profileService;

@@ -27,7 +27,7 @@ namespace RealAgencyClientApp.Controllers
                 TempData["ErrorMessage"] = "Failed to load real estate listings.";
                 return View(new List<AnnouncementListModel>());
             }
-
+            
             var content = await response.Content.ReadAsStringAsync();
             var realEstates = JsonConvert.DeserializeObject<List<AnnouncementListModel>>(content);
 
