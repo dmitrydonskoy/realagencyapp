@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RealAgencyClientApp.Models;
+using System.Security.Claims;
 using System.Text;
 
 namespace RealAgencyClientApp.Controllers
@@ -48,43 +49,43 @@ namespace RealAgencyClientApp.Controllers
 			return View();
 		}
 
-		[HttpPost]
-		public async Task<IActionResult> LoginView(UserLoginModel model)
-		{
-			if (!ModelState.IsValid) return View(model);
+        [HttpPost]
+        public async Task<IActionResult> LoginView(UserLoginModel model)
+        {
+            if (!ModelState.IsValid) return View(model);
 
-			var jsonContent = JsonConvert.SerializeObject(model);
-			var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+            var jsonContent = JsonConvert.SerializeObject(model);
+            var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-			var response = await _httpClient.PostAsync("/api/auth/login", httpContent);
+            var response = await _httpClient.PostAsync("/api/auth/login", httpContent);
 
-			if (!response.IsSuccessStatusCode)
-			{
-				var errorMessage = await response.Content.ReadAsStringAsync();
-				ModelState.AddModelError(string.Empty, errorMessage);
-				return View(model);
-			}
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                ModelState.AddModelError(string.Empty, errorMessage);
+                return View(model);
+            }
+         
+            var tokenResponse = await response.Content.ReadAsStringAsync();
+            var token = JsonConvert.DeserializeObject<TokenResponse>(tokenResponse)?.Token;
 
-			var tokenResponse = await response.Content.ReadAsStringAsync();
-			var token = JsonConvert.DeserializeObject<TokenResponse>(tokenResponse)?.Token;
+            if (token == null)
+            {
+                ModelState.AddModelError(string.Empty, "Ошибка получения токена.");
+                return View(model);
+            }
 
-			if (token == null)
-			{
-				ModelState.AddModelError(string.Empty, "Ошибка получения токена.");
-				return View(model);
-			}
+            // Сохраняем JWT в cookies
+            Response.Cookies.Append("jwt", token, new CookieOptions
+            {
+                HttpOnly = true   // только для серверной стороны
+                
+            });
 
-			Response.Cookies.Append("jwt", token, new CookieOptions
-			{
-				HttpOnly = true,
-				Secure = true,
-				SameSite = SameSiteMode.Strict
-			});
+            return RedirectToAction("Index", "Home");
+        }
 
-			return RedirectToAction("Index", "Home");
-		}
-
-		[HttpPost]
+        [HttpPost]
 		public IActionResult Logout()
 		{
 			Response.Cookies.Delete("jwt");
