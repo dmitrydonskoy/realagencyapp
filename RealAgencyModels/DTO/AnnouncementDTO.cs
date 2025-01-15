@@ -13,7 +13,5 @@ namespace RealAgencyModels.DTO
 		public string Description { get; set; } = null!;
 		public int Userid { get; set; }
 
-		
-
 	}
 }

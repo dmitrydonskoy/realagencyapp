@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RealAgencyModels.BusinessLogic;
 using RealAgencyModels.DTO;
 
 namespace RealAgencyApp.Controller
 {
-	[ApiController]
+   
+    [ApiController]
 	[Route("api/[controller]")]
 	public class AnnouncementController : ControllerBase
 	{
@@ -16,15 +18,14 @@ namespace RealAgencyApp.Controller
             _realestateService = realestateService;
         }
 
-
-        // Создание нового объявления
+        
         [HttpPost]
-		public async Task<IActionResult> Create([FromBody] CreateAnnouncementDTO dto, string userId)
+		public async Task<IActionResult> Create([FromBody] CreateAnnouncementDTO dto)
 		{
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 
-			var result = await _announcementService.CreateAsync(dto, userId);
+			var result = await _announcementService.CreateAsync(dto);
 			return CreatedAtAction(nameof(GetById), new { id = result.Id}, result);
 		}
 
@@ -38,7 +39,7 @@ namespace RealAgencyApp.Controller
 
 			return Ok(result);
 		}
-
+		
 		// Получение всех объявлений
 		[HttpGet]
 		public async Task<IActionResult> GetAll()
@@ -89,5 +90,7 @@ namespace RealAgencyApp.Controller
 
             return Ok(data);
         }
+
+
     }
 }

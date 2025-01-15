@@ -9,9 +9,10 @@ namespace RealAgencyModels.DTO
     public class CreateAnnouncementDTO
     {
         public int Id { get; set; }
+        public int UserId { get; set; }
         public string Type { get; set; }
         public string Description { get; set; }
-        public RealstateDTO RealEstate { get; set; }
+        public RealstateDTO? RealEstate { get; set; }
         public AreaInfoDTO? AreaInfo { get; set; }
     }
 }

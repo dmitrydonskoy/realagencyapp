@@ -127,6 +127,7 @@ namespace RealAgencyModels.BusinessLogic
 		}
         public async Task<List<AnnouncementDescription>> GetAllRealEstatesAsync()
         {
+			
             return await _dbContext.Realestates
                 .Include(re => re.RealEstatePhotos) // Подгружаем связанные фотографии
                 .Select(re => new AnnouncementDescription

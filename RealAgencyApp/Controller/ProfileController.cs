@@ -5,7 +5,7 @@ using RealAgencyModels.DTO;
 
 namespace RealAgencyApp.Controller
 {
-    
+	[Authorize]
     [ApiController]
     [Route("api/[controller]")]
 	public class ProfileController : ControllerBase
