@@ -31,6 +31,9 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Auth" asp-action="LoginView">Авторизация</a>
                         </li>
                         <li class="nav-item">
+                        <a asp-controller="Announcement" asp-action="PurchaseAnnouncements" class="btn btn-success">View Purchase Announcements</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="Auth" asp-controller="Auth" asp-action="RegisterView">Регистрация</a>
                         </li>
                         @if (Context.Request.Cookies["jwt"] != null)

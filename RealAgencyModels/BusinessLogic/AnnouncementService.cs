@@ -21,54 +21,57 @@ namespace RealAgencyModels.BusinessLogic
 		}
 
 		// Создание нового объявления
-		public async Task<CreateAnnouncementDTO> CreateAsync(CreateAnnouncementDTO dto, string userId)
+		public async Task<CreateAnnouncementDTO> CreateAsync(CreateAnnouncementDTO dto)
 		{
             // 1. Создаем Announcement
             var announcement = new Announcement
             {
                 Type = dto.Type,
                 Description = dto.Description,
-                Userid = int.Parse(userId)
+                Userid = dto.UserId
             };
 
             _dbContext.Announcements.Add(announcement);
             await _dbContext.SaveChangesAsync();
-
-            // 2. Создаем RealEstate с привязкой к Announcement
-            var realEstate = new Realestate
+            if (announcement.Type == "Продажа")
             {
-                Address = dto.RealEstate.Address,
-                Rooms = dto.RealEstate.Rooms,
-                Type = dto.RealEstate.Type,
-                Square = dto.RealEstate.Square,
-                Floor = dto.RealEstate.Floor,
-                Bathroom = dto.RealEstate.Bathroom,
-                Repair = dto.RealEstate.Repair,
-                Furniture = dto.RealEstate.Furniture,
-                TransactionType = dto.RealEstate.TransactionType,
-                Price = dto.RealEstate.Price,
-                Description = dto.RealEstate.Description,
-                Announcementid = announcement.Id
-            };
-
-            _dbContext.Realestates.Add(realEstate);
-            await _dbContext.SaveChangesAsync();
-            if (realEstate.Type == "Дом")
-            {
-                // 3. Создаем AreaInfo с привязкой к RealEstate
-                var areaInfo = new AreaInfo
+                // 2. Создаем RealEstate с привязкой к Announcement
+                var realEstate = new Realestate
                 {
-                    Description = dto.AreaInfo.Description,
-                    Square = dto.AreaInfo.Square,
-                    Electricity = dto.AreaInfo.Electricity,
-                    Heating = dto.AreaInfo.Heating,
-                    WaterSupply = dto.AreaInfo.WaterSupply,
-                    Gas = dto.AreaInfo.Gas,
-                    Sewerage = dto.AreaInfo.Sewerage,
-                    Realestateid = realEstate.Id
+                    Address = dto.RealEstate.Address,
+                    Rooms = dto.RealEstate.Rooms,
+                    Type = dto.RealEstate.Type,
+                    Square = dto.RealEstate.Square,
+                    Floor = dto.RealEstate.Floor,
+                    Bathroom = dto.RealEstate.Bathroom,
+                    Repair = dto.RealEstate.Repair,
+                    Furniture = dto.RealEstate.Furniture,
+                    TransactionType = dto.RealEstate.TransactionType,
+                    Price = dto.RealEstate.Price,
+                    Description = dto.RealEstate.Description,
+                    Announcementid = announcement.Id
                 };
+                _dbContext.Realestates.Add(realEstate);
+                await _dbContext.SaveChangesAsync();
+                if (realEstate.Type == "Дом")
+                {
+                    // 3. Создаем AreaInfo с привязкой к RealEstate
+                    var areaInfo = new AreaInfo
+                    {
+                        Description = dto.AreaInfo.Description,
+                        Square = dto.AreaInfo.Square,
+                        Electricity = dto.AreaInfo.Electricity,
+                        Heating = dto.AreaInfo.Heating,
+                        WaterSupply = dto.AreaInfo.WaterSupply,
+                        Gas = dto.AreaInfo.Gas,
+                        Sewerage = dto.AreaInfo.Sewerage,
+                        Realestateid = realEstate.Id
+                    };
 
-                _dbContext.AreaInfos.Add(areaInfo);
+                    _dbContext.AreaInfos.Add(areaInfo);
+                }
+
+            
                 await _dbContext.SaveChangesAsync();
             }
 
@@ -170,7 +173,9 @@ namespace RealAgencyModels.BusinessLogic
                 Photos = realEstate.RealEstatePhotos.Select(p => p.Filepath).ToList(),
                 AnnouncementTitle = announcement.Type,
                 AnnouncementDescription = announcement.Description,
-                AreaDescription = areaInfo.Description
+                AreaDescription = areaInfo.Description,
+                AnnouncementId = announcement.Id
+                
             };
         }
 

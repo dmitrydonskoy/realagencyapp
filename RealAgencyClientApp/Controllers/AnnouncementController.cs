@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using RealAgencyClientApp.Models;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
@@ -15,6 +17,7 @@ namespace RealAgencyClientApp.Controllers
         {
             _httpClient = httpClientFactory.CreateClient();
             _httpClient.BaseAddress = new Uri("https://localhost:7023/api"); // Базовый URL внешнего API
+            
         }
        
         [HttpGet]
@@ -87,24 +90,39 @@ namespace RealAgencyClientApp.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-          
+            var token = Request.Cookies["jwt"];
+            if (string.IsNullOrEmpty(token))
+            {
+                TempData["Error"] = "You must be logged in to access the profile.";
+                return RedirectToAction("LoginView", "Auth");
+            }
 
             return View(new CreateAnnouncementDTO());
         }
         [HttpPost]
-        public async Task<IActionResult> CreateAnnouncement(CreateAnnouncementDTO model)
+        public async Task<IActionResult> Create(CreateAnnouncementDTO model)
         {
             try
             {
-                // Устанавливаем AreaInfo в null, если тип недвижимости — "Квартира"
+                var token = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(token))
+                {
+                    TempData["Error"] = "You must be logged in to access the profile.";
+                    return RedirectToAction("LoginView", "Auth");
+                }
+                
                 if (model.RealEstate.Type == "Квартира")
                 {
                     model.AreaInfo = null;
                 }
-
+                var handler = new JwtSecurityTokenHandler();
+                var jwtToken = handler.ReadJwtToken(token);
+                var userId = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value;
+                model.Userid = int.Parse(userId);
                 // Отправляем запрос на сервер
-                var response = await _httpClient.PostAsJsonAsync("announcement/create", model);
-
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                var response = await _httpClient.PostAsJsonAsync("/api/announcement", model);
+                
                 if (!response.IsSuccessStatusCode)
                 {
                     ModelState.AddModelError("", "Failed to create announcement.");
@@ -113,12 +131,34 @@ namespace RealAgencyClientApp.Controllers
 
                 // Успешное создание
                 TempData["SuccessMessage"] = "Announcement created successfully!";
-                return RedirectToAction("Index", "Announcements");
+                return RedirectToAction("Index", "Home");
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError("", $"An error occurred: {ex.Message}");
                 return View(model);
+            }
+        }
+        [HttpGet]
+        public async Task<IActionResult> PurchaseAnnouncements()
+        {
+            try
+            {
+                // Получаем данные через API для объявлений типа "Покупка"
+                var allAnnouncements = await _httpClient.GetFromJsonAsync<List<AnnouncementListModel>>("/api/Announcement");
+                var purchaseAnnouncements = allAnnouncements?.Where(a => a.Type == "Покупка").ToList();
+                if (purchaseAnnouncements == null || !purchaseAnnouncements.Any())
+                {
+                    TempData["Info"] = "No purchase announcements available.";
+                    return View(new List<AnnouncementListModel>());
+                }
+
+                return View(purchaseAnnouncements); // Передаём данные в представление
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Failed to load purchase announcements: {ex.Message}";
+                return View(new List<AnnouncementListModel>());
             }
         }
     }

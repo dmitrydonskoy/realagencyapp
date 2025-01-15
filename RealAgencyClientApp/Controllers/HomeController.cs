@@ -92,5 +92,8 @@ namespace RealAgencyClientApp.Controllers
             var details = await _httpClient.GetFromJsonAsync<RealEstateDetailsDTO>($"api/Announcement/page/{id}");
             return View(details);
         }
+
+     
+
     }
 }

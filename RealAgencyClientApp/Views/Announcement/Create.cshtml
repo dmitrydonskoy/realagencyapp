@@ -6,7 +6,7 @@
 
 <h2>Создание объявления</h2>
 
-<form asp-action="CreateAnnouncement" method="post">
+<form asp-action="Create" method="post">
     <div class="mb-3">
         <label for="RealEstate.Type" class="form-label">Тип недвижимости</label>
         <select asp-for="Type" class="form-select" id="Type" onchange="toggleAreaInfoFields()">
@@ -122,6 +122,7 @@
             <label for="AreaInfo.Sewerage" class="form-label">Канализация</label>
             <input asp-for="AreaInfo.Sewerage" class="form-control" id="AreaInfo.Sewerage" />
         </div>
+
     </fieldset>
 
     <button type="submit" class="btn btn-primary">Создать</button>

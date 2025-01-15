@@ -1,0 +1,37 @@
+﻿@model List<AnnouncementListModel>
+
+<h1>Purchase Announcements</h1>
+
+@if (TempData["Info"] != null)
+{
+    <div class="alert alert-info">@TempData["Info"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+@if (Model == null || !Model.Any())
+{
+    <p>No purchase announcements available.</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var realEstate in Model)
+        {
+            <div class="col-md-4">
+                <div class="card mb-3">
+                 
+                    <div class="card-body">
+                        <h5 class="card-title">@realEstate.Type</h5>
+                        <p class="card-text">@realEstate.Description</p>
+                        <p class="card-text"><strong>Price:</strong> $@realEstate.Price</p>
+                        <a asp-controller="Announcement" asp-action="Announcement" asp-route-id="@realEstate.Id" class="btn btn-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
