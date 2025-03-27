@@ -3,11 +3,14 @@ using Microsoft.VisualBasic.ApplicationServices;
 using RealAgencyModels.DTO;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using static RealAgencyModels.BusinessLogic.AnnouncementService;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace RealAgencyModels.BusinessLogic
 {
@@ -70,12 +73,13 @@ namespace RealAgencyModels.BusinessLogic
 
                     _dbContext.AreaInfos.Add(areaInfo);
                 }
+                dto.RealEstate.Id = realEstate.Id;
 
-            
                 await _dbContext.SaveChangesAsync();
             }
 
-            dto.Id = announcement.Id; // Возвращаем ID в DTO
+            dto.Id = announcement.Id;
+            // Возвращаем ID в DTO
             return dto;
         }
 
@@ -151,32 +155,54 @@ namespace RealAgencyModels.BusinessLogic
                 return null;
 
             // Ищем информацию об области по RealEstateId
+            
             var areaInfo = await _dbContext.AreaInfos
                 .FirstOrDefaultAsync(ai => ai.Realestateid == realEstate.Id);
 
-            if (areaInfo == null)
-                return null;
-
-            return new RealEstateDetailsDTO
+            if (areaInfo != null)
             {
-                RealEstateId = realEstate.Id,
-                Address = realEstate.Address,
-                Rooms = realEstate.Rooms,
-                Type = realEstate.Type,
-                Square = realEstate.Square,
-                Floor = realEstate.Floor,
-                Bathroom = realEstate.Bathroom,
-                Repair = realEstate.Repair,
-                Furniture = realEstate.Furniture,
-                TransactionType = realEstate.TransactionType,
-                Price = realEstate.Price,
-                Photos = realEstate.RealEstatePhotos.Select(p => p.Filepath).ToList(),
-                AnnouncementTitle = announcement.Type,
-                AnnouncementDescription = announcement.Description,
-                AreaDescription = areaInfo.Description,
-                AnnouncementId = announcement.Id
-                
-            };
+                return new RealEstateDetailsDTO
+                {
+                    RealEstateId = realEstate.Id,
+                    Address = realEstate.Address,
+                    Rooms = realEstate.Rooms,
+                    Type = realEstate.Type,
+                    Square = realEstate.Square,
+                    Floor = realEstate.Floor,
+                    Bathroom = realEstate.Bathroom,
+                    Repair = realEstate.Repair,
+                    Furniture = realEstate.Furniture,
+                    TransactionType = realEstate.TransactionType,
+                    Price = realEstate.Price,
+                    Photos = realEstate.RealEstatePhotos.Select(p => p.Filepath).ToList(),
+                    AnnouncementTitle = announcement.Type,
+                    AnnouncementDescription = announcement.Description,
+                    AreaDescription = areaInfo.Description,
+                    AnnouncementId = announcement.Id
+
+                };
+            }
+            else
+            {
+                return new RealEstateDetailsDTO
+                {
+                    RealEstateId = realEstate.Id,
+                    Address = realEstate.Address,
+                    Rooms = realEstate.Rooms,
+                    Type = realEstate.Type,
+                    Square = realEstate.Square,
+                    Floor = realEstate.Floor,
+                    Bathroom = realEstate.Bathroom,
+                    Repair = realEstate.Repair,
+                    Furniture = realEstate.Furniture,
+                    TransactionType = realEstate.TransactionType,
+                    Price = realEstate.Price,
+                    Photos = realEstate.RealEstatePhotos.Select(p => p.Filepath).ToList(),
+                    AnnouncementTitle = announcement.Type,
+                    AnnouncementDescription = announcement.Description,
+                    AnnouncementId = announcement.Id
+                };
+            }
         }
 
     }

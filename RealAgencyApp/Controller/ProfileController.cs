@@ -5,7 +5,7 @@ using RealAgencyModels.DTO;
 
 namespace RealAgencyApp.Controller
 {
-	[Authorize]
+	
     [ApiController]
     [Route("api/[controller]")]
 	public class ProfileController : ControllerBase
@@ -18,14 +18,15 @@ namespace RealAgencyApp.Controller
 			_profileService = profileService;
 			_userService = userService;
 		}
-
-		[HttpGet("{id}")]
+      
+        [HttpGet("{id}")]
 		public async Task<ActionResult<ProfileDTO>> GetById(int id)
 		{
 			var profile = await _profileService.GetByIdAsync(id);
 			if (profile == null) return NotFound();
 			return Ok(profile);
 		}
+   
         [HttpGet("agentProfile/{userId}")]
         public async Task<ActionResult<ProfileDTO>> GetAgentProfile(int userId)
         {
@@ -48,8 +49,8 @@ namespace RealAgencyApp.Controller
 			var createdProfile = await _profileService.CreateAsync(dto);
 			return CreatedAtAction(nameof(GetById), new { id = createdProfile.Id }, createdProfile);
 		}
-
-		[HttpPut("{id}")]
+      
+        [HttpPut("{id}")]
 		public async Task<IActionResult> Update(int id, ProfileDTO dto)
 		{
 			if (id != dto.Id) return BadRequest("ID mismatch");

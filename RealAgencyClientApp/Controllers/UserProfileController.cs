@@ -45,11 +45,12 @@ namespace RealAgencyClientApp.Controllers
                     return RedirectToAction("LoginView", "Auth");
                 }
 
-               
+                var role = jwtToken.Claims.FirstOrDefault(c => c.Type == "role")?.Value;
+                Console.WriteLine($"User Role: {role}");
 
                 // Установка заголовка авторизации
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
+              
+           
                 // Получение профиля пользователя
                 var user = await _httpClient.GetFromJsonAsync<UserModel>($"/api/user/{int.Parse(userId)}");
                 if (user == null)
@@ -86,7 +87,7 @@ namespace RealAgencyClientApp.Controllers
             {
                 TempData["Error"] = "Network error occurred while loading user profile.";
                 Console.WriteLine($"HttpRequestException: {ex.Message}");
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("LoginView", "Auth");
             }
             catch (Exception ex)
             {

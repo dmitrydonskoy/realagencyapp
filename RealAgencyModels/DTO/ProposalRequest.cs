@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace RealAgencyModels.DTO
 {
-	public class BidDTO
-	{
-		public int Partnerid { get; set; }
-		public int Userid { get; set; }
-        
+    public class ProposalRequest
+    {
+        public int AnnouncementId { get; set; }
+        public int ClientId { get; set; }
     }
 }

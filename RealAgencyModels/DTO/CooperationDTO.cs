@@ -11,5 +11,6 @@ namespace RealAgencyModels.DTO
 		public int Id { get; set; }
 		public int Bidpartnerid { get; set; }
 		public int Biduserid { get; set; }
-	}
+        public string? ClientName { get; set; }
+    }
 }

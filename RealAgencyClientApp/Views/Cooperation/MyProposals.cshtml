@@ -1,0 +1,26 @@
+﻿@model List<AnnouncementListModel>
+
+<h1>Announcements</h1>
+
+@if (Model == null || !Model.Any())
+{
+    <p>No announcements available for this cooperation.</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var announcement in Model)
+        {
+            <div class="col-md-4">
+                <div class="card mb-3">
+                    <img src="@announcement.Photos.FirstOrDefault()" class="card-img-top" alt="Photo">
+                    <div class="card-body">
+                        <h5 class="card-title">@announcement.Type</h5>
+                        <p class="card-text">@announcement.Description</p>
+                        <p class="card-text"><strong>Price:</strong> $@announcement.Price</p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

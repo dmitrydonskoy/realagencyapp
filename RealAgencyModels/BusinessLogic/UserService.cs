@@ -19,7 +19,7 @@ namespace RealAgencyModels.BusinessLogic
 		}
 
 
-		// Получение пользователя по ID
+	
 		public async Task<UserDTO?> GetByIdAsync(int id)
 		{
 			var model = await _dbContext.Users.FindAsync(id);
@@ -36,7 +36,6 @@ namespace RealAgencyModels.BusinessLogic
 			};
 		}
 
-		// Получение всех пользователей
 		public async Task<IEnumerable<UserDTO>> GetAllAsync()
 		{
 			return await _dbContext.Users
@@ -52,7 +51,7 @@ namespace RealAgencyModels.BusinessLogic
 				.ToListAsync();
 		}
 
-		// Обновление пользователя
+
 		public async Task<UserDTO?> UpdateAsync(int id, UserDTO dto)
 		{
            
@@ -73,7 +72,7 @@ namespace RealAgencyModels.BusinessLogic
 			return dto;
 		}
 
-		// Удаление пользователя
+		
 		public async Task<bool> DeleteAsync(int id)
 		{
 			var model = await _dbContext.Users.FindAsync(id);
@@ -90,13 +89,13 @@ namespace RealAgencyModels.BusinessLogic
 
 		public async Task<User> CreateAsync(UserDTO dto)
 		{
-			var passwordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password); // Хеширование пароля
+			var passwordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password); 
 
 			var user = new User
 			{
 				Name = dto.Name,
 				Email = dto.Email,
-				Role = "User", // Назначьте роль по умолчанию
+				Role = "User", 
 				Password = passwordHash,
 				DateOfBirth = new DateOnly(2001, 10, 11)
 			};

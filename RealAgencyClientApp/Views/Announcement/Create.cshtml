@@ -6,7 +6,7 @@
 
 <h2>Создание объявления</h2>
 
-<form asp-action="Create" method="post">
+<form asp-action="Create" method="post" enctype="multipart/form-data">
     <div class="mb-3">
         <label for="RealEstate.Type" class="form-label">Тип недвижимости</label>
         <select asp-for="Type" class="form-select" id="Type" onchange="toggleAreaInfoFields()">
@@ -83,6 +83,17 @@
             <label for="RealEstate.Description" class="form-label">Описание недвижимости</label>
             <textarea asp-for="RealEstate.Description" class="form-control" id="RealEstate.Description"></textarea>
         </div>
+
+        <!-- Загрузка фото -->
+        <h3>Upload Photo</h3>
+        <div class="mb-3">
+            <label for="photo" class="form-label">Выберите фото</label>
+            <input type="file" name="photo" class="form-control" />
+        </div>
+
+        <!-- Скрытый элемент для Id недвижимости -->
+        <input type="hidden" name="realEstateId" value="@Model.Id" />
+
     </fieldset>
 
     <fieldset id="AreaInfoFields" style="display: none;">
@@ -122,7 +133,6 @@
             <label for="AreaInfo.Sewerage" class="form-label">Канализация</label>
             <input asp-for="AreaInfo.Sewerage" class="form-control" id="AreaInfo.Sewerage" />
         </div>
-
     </fieldset>
 
     <button type="submit" class="btn btn-primary">Создать</button>
@@ -135,13 +145,14 @@
             const areaInfoFields = document.getElementById("AreaInfoFields");
             const estateInfoFields = document.getElementById("EstateInfoFields");
             const typeFieldAnnoun = document.getElementById("Type");
-            if(typeFieldAnnoun.value === "Продажа"){
+
+            if (typeFieldAnnoun.value === "Продажа") {
                 estateInfoFields.style.display = "block";
                 areaInfoFields.style.display = "block";
-             } else {
+            } else {
                 estateInfoFields.style.display = "none";
                 areaInfoFields.style.display = "none";
-             }
+            }
             if (typeField.value === "Дом") {
                 areaInfoFields.style.display = "block";
             } else {

@@ -1,6 +1,6 @@
 ﻿@model List<AnnouncementListModel>
 
-<h1>Purchase Announcements</h1>
+<h1>Заявки на покупку</h1>
 
 @if (TempData["Info"] != null)
 {
@@ -14,7 +14,7 @@
 
 @if (Model == null || !Model.Any())
 {
-    <p>No purchase announcements available.</p>
+    <p>Нет заявок на покупку</p>
 }
 else
 {
@@ -27,8 +27,10 @@ else
                     <div class="card-body">
                         <h5 class="card-title">@realEstate.Type</h5>
                         <p class="card-text">@realEstate.Description</p>
-                        <p class="card-text"><strong>Price:</strong> $@realEstate.Price</p>
-                        <a asp-controller="Announcement" asp-action="Announcement" asp-route-id="@realEstate.Id" class="btn btn-primary">View Details</a>
+                        <form asp-controller="Cooperation" asp-action="CreateCooperation" method="post">
+                            <input type="hidden" name="BidUserId" value="@realEstate.Userid" />
+                            <button type="submit" class="btn btn-success">Предложить сотрудничество</button>
+                        </form>
                     </div>
                 </div>
             </div>

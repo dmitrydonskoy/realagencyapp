@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RealAgencyClientApp.Models;
 using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
+using System.Net.Http.Headers;
 
 namespace RealAgencyClientApp.Controllers
 {
@@ -16,22 +19,49 @@ namespace RealAgencyClientApp.Controllers
             _httpClient = httpClientFactory.CreateClient();
             _httpClient.BaseAddress = new Uri("https://localhost:7023/api");
             _logger = logger;
-		}
-
+        }
         public async Task<IActionResult> Index()
+
         {
-            var response = await _httpClient.GetAsync("/api/Announcement/get-all");
 
-            if (!response.IsSuccessStatusCode)
+           try
+    {
+        // Запрос всех объявлений (без токена)
+        var response = await _httpClient.GetAsync("/api/Announcement/get-all");
+
+        if (!response.IsSuccessStatusCode)
+        {
+            TempData["ErrorMessage"] = "Failed to load real estate listings.";
+            return View(new List<AnnouncementListModel>());
+        }
+
+        var content = await response.Content.ReadAsStringAsync();
+        var realEstates = JsonConvert.DeserializeObject<List<AnnouncementListModel>>(content);
+
+        // Проверяем наличие токена только для получения сотрудничеств
+        var token = Request.Cookies["jwt"];
+        if (!string.IsNullOrEmpty(token))
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+            var bidPartnerId = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value;
+
+            if (!string.IsNullOrEmpty(bidPartnerId))
             {
-                TempData["ErrorMessage"] = "Failed to load real estate listings.";
-                return View(new List<AnnouncementListModel>());
+                var cooperations = await _httpClient.GetFromJsonAsync<List<CooperationModel>>($"/api/Cooperation/agent/{bidPartnerId}");
+                ViewBag.Clients = cooperations.Select(c => new { c.BidUserId, c.ClientName }).ToList();
             }
-            
-            var content = await response.Content.ReadAsStringAsync();
-            var realEstates = JsonConvert.DeserializeObject<List<AnnouncementListModel>>(content);
+        }
 
-            return View(realEstates);
+        return View(realEstates);
+    }
+    catch (Exception ex)
+    {
+        TempData["ErrorMessage"] = $"An error occurred: {ex.Message}";
+        return View(new List<AnnouncementListModel>());
+    }
         }
         public IActionResult Privacy()
 		{
@@ -93,7 +123,43 @@ namespace RealAgencyClientApp.Controllers
             return View(details);
         }
 
-     
+        [HttpPost]
+        public async Task<IActionResult> SendToClient(int announcementId, int clientId)
+        {
+            try
+            {
+                var token = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(token))
+                {
+                    TempData["Error"] = "You must be logged in to send proposals.";
+                    return RedirectToAction("LoginView", "Auth");
+                }
+
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                var proposalData = new
+                {
+                    announcementId,
+                    clientId
+                };
+
+                var response = await _httpClient.PostAsJsonAsync("/api/Cooperation/SendProposal", proposalData);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    TempData["Error"] = "Failed to send proposal.";
+                    return RedirectToAction("Index", "Home");
+                }
+
+                TempData["Success"] = "Proposal sent successfully!";
+                return RedirectToAction("Index", "Home");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"An error occurred: {ex.Message}";
+                return RedirectToAction("Index", "Home");
+            }
+        }
 
     }
 }

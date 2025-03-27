@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using RealAgencyModels;
 using RealAgencyModels.BusinessLogic;
 using RealAgencyModels.DTO;
 
@@ -56,5 +58,31 @@ namespace RealAgencyApp.Controller
 
 			return NoContent();
 		}
-	}
+
+        [HttpPost("/uploadPhoto")]
+        public async Task<IActionResult> UploadPhoto(int realEstateId, IFormFile photo)
+        {
+            if (photo == null || photo.Length == 0)
+            {
+                return BadRequest(new { Message = "Please select a valid photo." });
+            }
+
+            try
+            {
+                var result = await _realstateService.UploadPhotoAsync(realEstateId, photo);
+
+                if (!result.Success)
+                {
+                    return BadRequest(new { Message = result.Message });
+                }
+
+                return Ok(new { Message = result.Message, Filepath = result.Filepath });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = $"An error occurred: {ex.Message}" });
+            }
+        }
+
+    }
 }

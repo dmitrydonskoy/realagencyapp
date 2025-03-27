@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using RealAgencyModels.DTO;
 using System;
 using System.Collections.Generic;
@@ -13,10 +15,11 @@ namespace RealAgencyModels.BusinessLogic
 	public class RealStateService
 	{
 		private readonly RealAgencyDBContext _dbContext;
-
-		public RealStateService(RealAgencyDBContext dbContext)
+        private readonly IWebHostEnvironment _environment;
+        public RealStateService(RealAgencyDBContext dbContext, IWebHostEnvironment environment)
 		{
 			_dbContext = dbContext;
+			_environment = environment;
 		}
 
 		// Создание новой записи
@@ -132,7 +135,7 @@ namespace RealAgencyModels.BusinessLogic
                 .Include(re => re.RealEstatePhotos) // Подгружаем связанные фотографии
                 .Select(re => new AnnouncementDescription
                 {
-                    Id = re.Id,
+                    Id = re.Announcementid,
                     Description = re.Description,
                     Price = re.Price,
                     Type = re.Type,
@@ -140,6 +143,61 @@ namespace RealAgencyModels.BusinessLogic
                     Photos = re.RealEstatePhotos.Select(photo => photo.Filepath).ToList()
                 })
                 .ToListAsync();
+        }
+        public async Task<(bool Success, string Message, string? Filepath)> UploadPhotoAsync(int realEstateId, IFormFile photo)
+        {
+            if (realEstateId <= 0)
+            {
+                return (false, "Invalid real estate ID.", null);
+            }
+
+            if (photo == null || photo.Length == 0)
+            {
+                return (false, "Please select a valid photo.", null);
+            }
+
+            try
+            {
+                // Получаем путь для сохранения файла в физической файловой системе
+                var uploadPath = Path.Combine(
+                    _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot"),
+                    "uploads/realestate"
+                );
+                Directory.CreateDirectory(uploadPath);
+
+                // Генерируем уникальное имя файла
+                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(photo.FileName)}";
+                var filePath = Path.Combine(uploadPath, fileName);
+
+                // Сохраняем файл на сервер
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await photo.CopyToAsync(stream);
+                }
+
+                // Находим объект недвижимости по ID
+                var realEstate = await _dbContext.Realestates.FindAsync(realEstateId);
+                if (realEstate == null)
+                {
+                    return (false, "Real estate not found.", null);
+                }
+
+                // Сохраняем путь до фотографии в базу данных
+                var fileUrl = $"/uploads/realestate/{fileName}";
+                var fullUrl = $"https://localhost:7023{fileUrl}";
+                realEstate.RealEstatePhotos.Add(new RealEstatePhoto { Filepath = fullUrl });
+                await _dbContext.SaveChangesAsync();
+
+                // Формируем полный URL для доступа
+             
+
+                // Возвращаем успешный результат с полным URL
+                return (true, "Photo uploaded successfully.", fullUrl);
+            }
+            catch (Exception ex)
+            {
+                return (false, $"An error occurred: {ex.Message}", null);
+            }
         }
     }
 }

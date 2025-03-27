@@ -1,27 +1,108 @@
 ﻿@model List<AnnouncementListModel>
+@using System.IdentityModel.Tokens.Jwt;
+@using System.Security.Claims;
+@{
+    var token = Context.Request.Cookies["jwt"];
+    string role = null;
 
-<h1>Real Estate Listings</h1>
-
-@if (Model == null || !Model.Any())
-{
-    <p>No real estate listings available.</p>
+    if (!string.IsNullOrEmpty(token))
+    {
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(token);
+        role = jwtToken?.Claims?.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+    }
 }
-else
-{
-    <div class="row">
-        @foreach (var realEstate in Model)
-        {
-            <div class="col-md-4">
-                <div class="card mb-3">
-                    <img src="@realEstate.Photos.FirstOrDefault()" class="card-img-top" alt="Real Estate Photo">
-                    <div class="card-body">
-                        <h5 class="card-title">@realEstate.Type</h5>
-                        <p class="card-text">@realEstate.Description</p>
-                        <p class="card-text"><strong>Price:</strong> $@realEstate.Price</p>
-                        <a asp-controller="Home" asp-action="Announcement" asp-route-id="@realEstate.Id" class="btn btn-primary">View Details</a>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Объявления</title>
+    <!-- Подключаем jQuery перед Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <h1>Объявления</h1>
+
+    @if (Model == null || !Model.Any())
+    {
+        <p>No real estate listings available.</p>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var realEstate in Model)
+            {
+                <div class="col-md-4">
+                    <div class="card mb-3">
+                        <img src="@realEstate.Photos.FirstOrDefault()" class="card-img-top fixed-size-img" alt="Real Estate Photo">
+                        <div class="card-body">
+                            <h5 class="card-title">@realEstate.Type</h5>
+                            <p class="card-text">@realEstate.Description</p>
+                            <p class="card-text"><strong>Цена:</strong> $@realEstate.Price</p>
+                            <a asp-controller="Home" asp-action="Announcement" asp-route-id="@realEstate.Id" class="btn btn-primary">Подробнее</a>
+                            @if (role == "Agent")
+                            {
+                                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#sendToClientModal" data-announcement-id="@realEstate.Id">Отправить клиенту</button>
+                            }
+                        </div>
                     </div>
                 </div>
+            }
+        </div>
+    }
+
+    <!-- Модальное окно -->
+    <div class="modal fade" id="sendToClientModal" tabindex="-1" role="dialog" aria-labelledby="sendToClientModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="sendToClientModalLabel">Выбрать клиента</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form asp-controller="Home" asp-action="SendToClient" method="post">
+                        <input type="hidden" name="announcementId" id="modalAnnouncementId" />
+                        <div class="form-group">
+                            <label for="clientId" class="form-label">Выберите клиента</label>
+                            <select class="form-control" id="clientId" name="clientId">
+                                @if (ViewBag.Clients != null)
+                                {
+                                    foreach (var client in ViewBag.Clients)
+                                    {
+                                        <option value="@client.BidUserId">@client.ClientName</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Отправить</button>
+                    </form>
+                </div>
             </div>
-        }
+        </div>
     </div>
-}
+
+    <script>
+        // Обработчик события открытия модального окна
+        $(document).ready(function () {
+            $('#sendToClientModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget); // Кнопка, которая вызвала модальное окно
+                var announcementId = button.data('announcement-id'); // Извлекаем информацию из data-* атрибутов
+                $('#modalAnnouncementId').val(announcementId);
+            });
+        });
+    </script>
+
+    <style>
+        .fixed-size-img {
+            width: 300px;
+            height: 200px;
+            object-fit: cover; /* Лучше использовать cover вместо fill */
+        }
+    </style>
+</body>
+</html>
