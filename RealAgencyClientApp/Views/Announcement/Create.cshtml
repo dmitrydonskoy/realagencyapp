@@ -1,0 +1,166 @@
+﻿@model CreateAnnouncementDTO
+
+@{
+    ViewData["Title"] = "Создание объявления";
+}
+
+<h2>Создание объявления</h2>
+
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label for="RealEstate.Type" class="form-label">Тип недвижимости</label>
+        <select asp-for="Type" class="form-select" id="Type" onchange="toggleAreaInfoFields()">
+            <option value="Покупка">Покупка</option>
+            <option value="Продажа">Продажа</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="Description" class="form-label">Описание</label>
+        <textarea asp-for="Description" class="form-control" id="Description"></textarea>
+    </div>
+
+    <fieldset id="EstateInfoFields" style="display: none;">
+        <legend>Информация о недвижимости</legend>
+
+        <div class="mb-3">
+            <label for="RealEstate.Address" class="form-label">Адрес</label>
+            <input asp-for="RealEstate.Address" class="form-control" id="RealEstate.Address" />
+        </div>
+
+        <div class="mb-3">
+            <label for="RealEstate.Rooms" class="form-label">Количество комнат</label>
+            <input asp-for="RealEstate.Rooms" class="form-control" id="RealEstate.Rooms" />
+        </div>
+
+        <div class="mb-3">
+            <label for="RealEstate.Type" class="form-label">Тип недвижимости</label>
+            <select asp-for="RealEstate.Type" class="form-select" id="RealEstate.Type" onchange="toggleAreaInfoFields()">
+                <option value="Квартира">Квартира</option>
+                <option value="Дом">Дом</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="RealEstate.Square" class="form-label">Площадь</label>
+            <input asp-for="RealEstate.Square" class="form-control" id="RealEstate.Square" />
+        </div>
+
+        <div class="mb-3">
+            <label for="RealEstate.Floor" class="form-label">Этаж</label>
+            <input asp-for="RealEstate.Floor" class="form-control" id="RealEstate.Floor" />
+        </div>
+
+        <div class="mb-3">
+            <label for="RealEstate.Bathroom" class="form-label">Ванная</label>
+            <input asp-for="RealEstate.Bathroom" class="form-control" id="RealEstate.Bathroom" />
+        </div>
+
+        <div class="mb-3">
+            <label for="RealEstate.Repair" class="form-label">Ремонт</label>
+            <input asp-for="RealEstate.Repair" class="form-control" id="RealEstate.Repair" />
+        </div>
+
+        <div class="mb-3">
+            <label for="RealEstate.Furniture" class="form-label">Мебель</label>
+            <input asp-for="RealEstate.Furniture" class="form-control" id="RealEstate.Furniture" />
+        </div>
+
+        <div class="mb-3">
+            <label for="RealEstate.TransactionType" class="form-label">Тип сделки</label>
+            <select asp-for="RealEstate.TransactionType" class="form-select" id="RealEstate.TransactionType">
+                <option value="Продажа">Продажа</option>
+                <option value="Аренда">Аренда</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="RealEstate.Price" class="form-label">Цена</label>
+            <input asp-for="RealEstate.Price" class="form-control" id="RealEstate.Price" />
+        </div>
+
+        <div class="mb-3">
+            <label for="RealEstate.Description" class="form-label">Описание недвижимости</label>
+            <textarea asp-for="RealEstate.Description" class="form-control" id="RealEstate.Description"></textarea>
+        </div>
+
+        <!-- Загрузка фото -->
+        <h3>Upload Photo</h3>
+        <div class="mb-3">
+            <label for="photo" class="form-label">Выберите фото</label>
+            <input type="file" name="photo" class="form-control" />
+        </div>
+
+        <!-- Скрытый элемент для Id недвижимости -->
+        <input type="hidden" name="realEstateId" value="@Model.Id" />
+
+    </fieldset>
+
+    <fieldset id="AreaInfoFields" style="display: none;">
+        <legend>Информация о местности</legend>
+
+        <div class="mb-3">
+            <label for="AreaInfo.Description" class="form-label">Описание местности</label>
+            <textarea asp-for="AreaInfo.Description" class="form-control" id="AreaInfo.Description"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="AreaInfo.Square" class="form-label">Площадь участка</label>
+            <input asp-for="AreaInfo.Square" class="form-control" id="AreaInfo.Square" />
+        </div>
+
+        <div class="mb-3">
+            <label for="AreaInfo.Electricity" class="form-label">Электричество</label>
+            <input asp-for="AreaInfo.Electricity" class="form-control" id="AreaInfo.Electricity" />
+        </div>
+
+        <div class="mb-3">
+            <label for="AreaInfo.Heating" class="form-label">Отопление</label>
+            <input asp-for="AreaInfo.Heating" class="form-control" id="AreaInfo.Heating" />
+        </div>
+
+        <div class="mb-3">
+            <label for="AreaInfo.WaterSupply" class="form-label">Водоснабжение</label>
+            <input asp-for="AreaInfo.WaterSupply" class="form-control" id="AreaInfo.WaterSupply" />
+        </div>
+
+        <div class="mb-3">
+            <label for="AreaInfo.Gas" class="form-label">Газ</label>
+            <input asp-for="AreaInfo.Gas" class="form-control" id="AreaInfo.Gas" />
+        </div>
+
+        <div class="mb-3">
+            <label for="AreaInfo.Sewerage" class="form-label">Канализация</label>
+            <input asp-for="AreaInfo.Sewerage" class="form-control" id="AreaInfo.Sewerage" />
+        </div>
+    </fieldset>
+
+    <button type="submit" class="btn btn-primary">Создать</button>
+</form>
+
+@section Scripts {
+    <script>
+        function toggleAreaInfoFields() {
+            const typeField = document.getElementById("RealEstate.Type");
+            const areaInfoFields = document.getElementById("AreaInfoFields");
+            const estateInfoFields = document.getElementById("EstateInfoFields");
+            const typeFieldAnnoun = document.getElementById("Type");
+
+            if (typeFieldAnnoun.value === "Продажа") {
+                estateInfoFields.style.display = "block";
+                areaInfoFields.style.display = "block";
+            } else {
+                estateInfoFields.style.display = "none";
+                areaInfoFields.style.display = "none";
+            }
+            if (typeField.value === "Дом") {
+                areaInfoFields.style.display = "block";
+            } else {
+                areaInfoFields.style.display = "none";
+            }
+        }
+
+        // Инициализация при загрузке страницы
+        document.addEventListener("DOMContentLoaded", toggleAreaInfoFields);
+    </script>
+}

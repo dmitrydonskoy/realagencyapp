@@ -1,0 +1,202 @@
+﻿@using System.IdentityModel.Tokens.Jwt;
+@using System.Security.Claims;
+@{
+    var token = Context.Request.Cookies["jwt"];
+    string role = null;
+
+    if (!string.IsNullOrEmpty(token))
+    {
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(token);
+        role = jwtToken?.Claims?.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+    }
+}
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - RealAgencyClientApp</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/RealAgencyClientApp.styles.css" asp-append-version="true" />
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(to bottom, #e8f5e9, #ffffff);
+        }
+
+        .content {
+            flex: 1 0 auto;
+        }
+
+        .footer {
+            flex-shrink: 0;
+            background-color: #f1f1f1;
+            padding: 15px 0;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .navbar {
+            background-color: #28a745 !important; /* Зеленый фон для шапки */
+            border-radius: 0;
+        }
+
+        .navbar-brand {
+            color: black !important;
+            font-weight: bold;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+        }
+
+        .navbar-nav .nav-item {
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
+            .navbar-nav .nav-item .btn,
+            .navbar-nav .nav-item .nav-link {
+                font-size: 1rem;
+                color: black;
+                background-color: #28a745; /* Зеленый цвет кнопок */
+                border-radius: 5px;
+                padding: 10px 15px;
+                text-transform: uppercase;
+                transition: background-color 0.3s ease, color 0.3s ease;
+                border: none;
+            }
+
+                .navbar-nav .nav-item .btn:hover,
+                .navbar-nav .nav-item .nav-link:hover {
+                    background-color: #218838; /* Темный зеленый цвет при наведении */
+                    color: black;
+                }
+
+        .navbar-toggler-icon {
+            background-color: black;
+        }
+
+        .footer a {
+            color: #007bff;
+        }
+
+            .footer a:hover {
+                text-decoration: underline;
+            }
+
+        .container {
+            max-width: 1200px;
+            margin-top: 20px;
+        }
+
+        /* Для корректного отображения при изменении размера экрана */
+        .navbar-collapse {
+            justify-content: flex-end;
+        }
+
+        .navbar-nav .nav-item .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+
+        .btn:hover {
+            opacity: 0.8;
+        }
+
+        .nav-item a {
+            transition: all 0.3s ease;
+        }
+
+            .nav-item a:hover {
+                color: #0056b3;
+            }
+    </style>
+</head>
+
+<body>
+    <div class="content">
+        <header>
+            <nav class="navbar navbar-expand-sm navbar-light border-bottom box-shadow mb-3">
+                <div class="container-fluid">
+                    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Агентство Недвижимости</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                        <ul class="navbar-nav flex-grow-1">
+                             @if (role == "Agent")
+                            {
+                            <li class="nav-item">
+                                <a asp-controller="Announcement" asp-action="PurchaseAnnouncements" class="btn btn-success">Заявки на покупку</a>
+                            </li>
+                            }
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Announcement" asp-action="Create" class="btn btn-primary">
+                                    Создать объявление
+                                </a>
+                            </li>
+
+                            @if (role == "Agent")
+                            {
+                                <li class="nav-item">
+                                    <a asp-controller="Cooperation" asp-action="MyCooperations" class="btn btn-success">Мои клиенты</a>
+                                </li>
+                            }
+
+                            @if (role == "User")
+                            {
+                                <li class="nav-item">
+                                    <a asp-controller="Cooperation" asp-action="MyProposals" class="btn btn-primary">Мои предложения</a>
+                                </li>
+                            }
+
+                            @if (Context.Request.Cookies["jwt"] != null)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="UserProfile" asp-action="UserProfile">Профиль</a>
+                                </li>
+                            }
+
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="Auth" asp-controller="Auth" asp-action="RegisterView">Регистрация</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="Auth" asp-controller="Auth" asp-action="LoginView">Авторизация</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <div class="container">
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <footer class="footer border-top text-muted">
+        <div class="container">
+            &copy; 2024 - RealAgencyClientApp - <a asp-area="" asp-controller="Home" asp-action="Privacy">Политика конфиденциальности</a>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>

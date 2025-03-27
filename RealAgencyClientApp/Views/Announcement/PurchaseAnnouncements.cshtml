@@ -1,0 +1,39 @@
+﻿@model List<AnnouncementListModel>
+
+<h1>Заявки на покупку</h1>
+
+@if (TempData["Info"] != null)
+{
+    <div class="alert alert-info">@TempData["Info"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+@if (Model == null || !Model.Any())
+{
+    <p>Нет заявок на покупку</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var realEstate in Model)
+        {
+            <div class="col-md-4">
+                <div class="card mb-3">
+                 
+                    <div class="card-body">
+                        <h5 class="card-title">@realEstate.Type</h5>
+                        <p class="card-text">@realEstate.Description</p>
+                        <form asp-controller="Cooperation" asp-action="CreateCooperation" method="post">
+                            <input type="hidden" name="BidUserId" value="@realEstate.Userid" />
+                            <button type="submit" class="btn btn-success">Предложить сотрудничество</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

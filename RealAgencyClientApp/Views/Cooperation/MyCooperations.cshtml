@@ -1,0 +1,42 @@
+﻿@model List<CooperationModel>
+
+<h1>Мои клиенты</h1>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (Model == null || !Model.Any())
+{
+    <p>Нет сотрудничеств.</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var cooperation in Model)
+        {
+            <div class="col-md-4">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Имя клиента: @cooperation.ClientName</h5>
+                        <p><strong>Client ID:</strong> @cooperation.BidUserId</p>
+                        <p><strong>Agent ID:</strong> @cooperation.BidPartnerId</p>
+                        
+
+                        <!-- Кнопка удаления -->
+                        <form asp-controller="Cooperation" asp-action="DeleteCooperation" method="post" style="display: inline;">
+                            <input type="hidden" name="id" value="@cooperation.Id" />
+                            <button type="submit" class="btn btn-danger">Удалить</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
